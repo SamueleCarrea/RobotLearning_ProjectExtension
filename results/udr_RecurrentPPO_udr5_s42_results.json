@@ -1,0 +1,37 @@
+{
+    "training_method": "Uniform Domain Randomization (UDR)",
+    "training_env": "CustomHopper-source-udr5-v0",
+    "algorithm": "RecurrentPPO",
+    "timesteps": 1000000,
+    "n_test_episodes": 50,
+    "timestamp": "2026-08-29 09:26:24",
+    "config": {
+        "seed": null,
+        "n_envs": 8,
+        "normalize": true,
+        "lstm_hidden_size": 128
+    },
+    "randomization_config": {
+        "enabled": true,
+        "method": "uniform",
+        "parameters": [
+            "thigh_mass",
+            "leg_mass",
+            "foot_mass"
+        ]
+    },
+    "results": {
+        "source_to_source": {
+            "mean": 1490.26933572,
+            "std": 271.8999879401057
+        },
+        "source_to_target": {
+            "mean": 832.32670206,
+            "std": 176.62301301567138
+        },
+        "performance_drop": {
+            "absolute": 657.9426336600001,
+            "percentage": 44.14924321999322
+        }
+    }
+}

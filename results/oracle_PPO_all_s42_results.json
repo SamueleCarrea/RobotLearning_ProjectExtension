@@ -1,0 +1,24 @@
+{
+    "training_method": "Oracle (all masses)",
+    "training_env": "CustomHopper-source-udr-v0",
+    "algorithm": "PPO",
+    "timesteps": 1000000,
+    "n_test_episodes": 50,
+    "timestamp": "2026-08-29 04:41:31",
+    "config": {
+        "seed": 42,
+        "n_envs": 8,
+        "normalize": true,
+        "oracle_masses": "all"
+    },
+    "results": {
+        "source_to_source": {
+            "mean": 895.1882254,
+            "std": 89.46056813463736
+        },
+        "source_to_target": {
+            "mean": 1185.20501362,
+            "std": 35.96474674884007
+        }
+    }
+}

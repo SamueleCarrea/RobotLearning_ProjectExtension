@@ -1,0 +1,9 @@
+models/
+probe_dataset*.npz
+tensorboard/
+logs/
+__pycache__/
+env/__pycache__/
+*.pyc
+.DS_Store
+*.zip

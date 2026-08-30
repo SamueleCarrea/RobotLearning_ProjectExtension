@@ -1,0 +1,24 @@
+{
+    "training_method": "Baseline no randomization (source)",
+    "training_env": "CustomHopper-source-v0",
+    "algorithm": "PPO",
+    "timesteps": 1000000,
+    "n_test_episodes": 50,
+    "timestamp": "2026-08-29 20:33:19",
+    "config": {
+        "seed": 42,
+        "n_envs": 8,
+        "normalize": true,
+        "lstm_hidden_size": null
+    },
+    "results": {
+        "source_to_source": {
+            "mean": 1762.7413752599998,
+            "std": 1.7385702926799804
+        },
+        "source_to_target": {
+            "mean": 692.44019648,
+            "std": 22.8841402586956
+        }
+    }
+}

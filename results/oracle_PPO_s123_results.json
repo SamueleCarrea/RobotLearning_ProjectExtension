@@ -1,0 +1,24 @@
+{
+    "training_method": "Oracle (links masses)",
+    "training_env": "CustomHopper-source-udr-v0",
+    "algorithm": "PPO",
+    "timesteps": 1000000,
+    "n_test_episodes": 50,
+    "timestamp": "2026-08-29 22:48:09",
+    "config": {
+        "seed": 123,
+        "n_envs": 8,
+        "normalize": true,
+        "oracle_masses": "links"
+    },
+    "results": {
+        "source_to_source": {
+            "mean": 1633.4099923600004,
+            "std": 137.35283946321556
+        },
+        "source_to_target": {
+            "mean": 740.0743107200001,
+            "std": 3.7220952880117397
+        }
+    }
+}

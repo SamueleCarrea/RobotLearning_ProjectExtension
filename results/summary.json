@@ -1,0 +1,235 @@
+[
+    {
+        "method": "Baseline no randomization (target)",
+        "env": "CustomHopper-target-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=-",
+        "n_runs": 3,
+        "seeds": [
+            123,
+            42,
+            7
+        ],
+        "source_mean": 1629.846923693333,
+        "source_std": 40.113423652820146,
+        "target_mean": 1602.6263730333333,
+        "target_std": 105.4783033354882,
+        "files": [
+            "target_PPO_ff_target_s123_results.json",
+            "target_PPO_ff_target_s42_results.json",
+            "target_PPO_ff_target_s7_results.json"
+        ]
+    },
+    {
+        "method": "Baseline no randomization (target)",
+        "env": "CustomHopper-target-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=128",
+        "n_runs": 3,
+        "seeds": [
+            123,
+            42,
+            7
+        ],
+        "source_mean": 1293.0075068200001,
+        "source_std": 131.94727118457217,
+        "target_mean": 1305.4652815333336,
+        "target_std": 130.8430145510792,
+        "files": [
+            "target_RecurrentPPO_target_s123_results.json",
+            "target_RecurrentPPO_target_s42_results.json",
+            "target_RecurrentPPO_target_s7_results.json"
+        ]
+    },
+    {
+        "method": "Oracle (all masses)",
+        "env": "CustomHopper-source-udr-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=-, masses=all",
+        "n_runs": 1,
+        "seeds": [
+            42
+        ],
+        "source_mean": 895.1882254,
+        "source_std": 0.0,
+        "target_mean": 1185.20501362,
+        "target_std": 0.0,
+        "files": [
+            "oracle_PPO_all_s42_results.json"
+        ]
+    },
+    {
+        "method": "Baseline no randomization (source)",
+        "env": "CustomHopper-source-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=128",
+        "n_runs": 3,
+        "seeds": [
+            123,
+            42,
+            7
+        ],
+        "source_mean": 1325.2820662066667,
+        "source_std": 171.25118145265415,
+        "target_mean": 1168.9664029800003,
+        "target_std": 358.0098376424939,
+        "files": [
+            "source_RecurrentPPO_source_s123_results.json",
+            "source_RecurrentPPO_source_s42_results.json",
+            "source_RecurrentPPO_source_s7_results.json"
+        ]
+    },
+    {
+        "method": "Oracle (links masses)",
+        "env": "CustomHopper-source-udr-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=-, masses=links",
+        "n_runs": 3,
+        "seeds": [
+            123,
+            42,
+            7
+        ],
+        "source_mean": 1430.5200317600002,
+        "source_std": 256.3750802070779,
+        "target_mean": 1149.8582485066665,
+        "target_std": 290.3969263507862,
+        "files": [
+            "oracle_PPO_s123_results.json",
+            "oracle_PPO_s42_results.json",
+            "oracle_PPO_s7_results.json"
+        ]
+    },
+    {
+        "method": "Uniform Domain Randomization (UDR)",
+        "env": "CustomHopper-source-udr50-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=128",
+        "n_runs": 1,
+        "seeds": [
+            null
+        ],
+        "source_mean": 1204.6711818800002,
+        "source_std": 0.0,
+        "target_mean": 1084.1826551,
+        "target_std": 0.0,
+        "files": [
+            "udr_RecurrentPPO_udr50_s42_results.json"
+        ]
+    },
+    {
+        "method": "Uniform Domain Randomization (UDR)",
+        "env": "CustomHopper-source-udr25-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=128",
+        "n_runs": 1,
+        "seeds": [
+            null
+        ],
+        "source_mean": 890.2055538000002,
+        "source_std": 0.0,
+        "target_mean": 913.3909438200001,
+        "target_std": 0.0,
+        "files": [
+            "udr_RecurrentPPO_udr25_s42_results.json"
+        ]
+    },
+    {
+        "method": "Uniform Domain Randomization (UDR)",
+        "env": "CustomHopper-source-udr-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=-",
+        "n_runs": 6,
+        "seeds": [
+            11,
+            123,
+            21,
+            42,
+            5,
+            7
+        ],
+        "source_mean": 1706.2084925666666,
+        "source_std": 72.58947473275306,
+        "target_mean": 891.3089121433333,
+        "target_std": 349.10851279189677,
+        "files": [
+            "udr_PPO_ff_s11_results.json",
+            "udr_PPO_ff_s123_results.json",
+            "udr_PPO_ff_s21_results.json",
+            "udr_PPO_ff_s42_results.json",
+            "udr_PPO_ff_s5_results.json",
+            "udr_PPO_ff_s7_results.json"
+        ]
+    },
+    {
+        "method": "Baseline no randomization (source)",
+        "env": "CustomHopper-source-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=-",
+        "n_runs": 6,
+        "seeds": [
+            11,
+            123,
+            21,
+            42,
+            5,
+            7
+        ],
+        "source_mean": 1723.2152969666665,
+        "source_std": 52.510630989142165,
+        "target_mean": 853.2224536933335,
+        "target_std": 522.9236123097428,
+        "files": [
+            "source_PPO_ff_source_s11_results.json",
+            "source_PPO_ff_source_s123_results.json",
+            "source_PPO_ff_source_s21_results.json",
+            "source_PPO_ff_source_s42_results.json",
+            "source_PPO_ff_source_s5_results.json",
+            "source_PPO_ff_source_s7_results.json"
+        ]
+    },
+    {
+        "method": "Uniform Domain Randomization (UDR)",
+        "env": "CustomHopper-source-udr5-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=128",
+        "n_runs": 1,
+        "seeds": [
+            null
+        ],
+        "source_mean": 1490.26933572,
+        "source_std": 0.0,
+        "target_mean": 832.32670206,
+        "target_std": 0.0,
+        "files": [
+            "udr_RecurrentPPO_udr5_s42_results.json"
+        ]
+    },
+    {
+        "method": "Uniform Domain Randomization (UDR)",
+        "env": "CustomHopper-source-udr-v0",
+        "timesteps": 1000000,
+        "config": "n_envs=8, normalize=True, lstm=128",
+        "n_runs": 6,
+        "seeds": [
+            11,
+            123,
+            21,
+            42,
+            5,
+            7
+        ],
+        "source_mean": 1119.8268168166667,
+        "source_std": 265.1762633835,
+        "target_mean": 745.4168549633333,
+        "target_std": 341.8562926872143,
+        "files": [
+            "udr_RecurrentPPO_lstm_s11_results.json",
+            "udr_RecurrentPPO_lstm_s123_results.json",
+            "udr_RecurrentPPO_lstm_s21_results.json",
+            "udr_RecurrentPPO_lstm_s42_results.json",
+            "udr_RecurrentPPO_lstm_s5_results.json",
+            "udr_RecurrentPPO_lstm_s7_results.json"
+        ]
+    }
+]
