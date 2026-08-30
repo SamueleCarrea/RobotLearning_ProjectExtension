@@ -37,34 +37,163 @@ torso too, as a check.
 
 ## Files
 
+Grouped by what part of the pipeline they belong to, roughly in the order
+you would run them.
+
+### Environment and training (Block 1)
+
 ```
-env/custom_hopper.py          environment + UDR (configurable range)
-oracle_env.py                 wrapper that adds the true masses to the observation
-train.py                      baseline (no randomization), RecurrentPPO or PPO feedforward
-train_udr.py                  UDR policy, RecurrentPPO or PPO feedforward
-train_oracle.py               PPO oracle
-collect_data.py               rollout with the trained policy -> dataset for the probe
-collect_control.py            control: same dataset but with a randomly-initialized LSTM
-probe_model.py                2-layer MLP, deliberately small
-train_probe.py                probe training
-analyze_probe_robustness.py   cross-validation + early window (no leakage)
-analyze_probe_controls.py     linear probe + controls (timestep-only, shuffled labels)
-eval_cross_mass.py            evaluates a checkpoint on environments with thigh/leg/foot scaled
-eval_best_checkpoints.py      re-evaluates best_model checkpoints (see Limitations: not recommended)
-check_dataset_meta.py         prints .npz provenance, verifies control/trained pairing
-run_probe_sweep.sh            probe pipeline across policy seeds + encoder seeds
-summarize_probe.py            aggregates probe results, reward-vs-decodability correlation
-summarize_crossmass.py        aggregates cross-mass evaluations across seeds
-quarantine_legacy.sh          moves aside results from the pre-seeding-fix run
-summarize_results.py          table with mean and std across seeds
-plot.py                       all paper figures (policies, cross-mass, probe)
-plot_learning_curves.py       learning curves, feedforward vs recurrent
-watch_episode.py              renders one episode
-test_random_policy.py         sanity check on the environment with a random policy
+env/custom_hopper.py    MuJoCo Hopper environment + UDR. The randomization
+                         range is picked via the env id (e.g.
+                         CustomHopper-source-udr-v0 = standard +-15%,
+                         -udr5/-udr25/-udr50 = +-5%/25%/50% variants used
+                         for the amplitude ablation).
+
+oracle_env.py            Gym wrapper used only by the oracle: concatenates
+                         the true masses to the observation.
+                         --oracle_masses links -> thigh/leg/foot (the ones
+                         UDR randomizes); all -> also adds the torso.
+
+train.py                 Baseline policy, NO randomization. Trains on either
+                         CustomHopper-source-v0 or -target-v0.
+                         --algorithm RecurrentPPO|PPO selects the architecture.
+
+train_udr.py              Same as train.py but on the UDR environment: at
+                         every reset, thigh/leg/foot are resampled inside the
+                         chosen range. Same --algorithm flag.
+
+train_oracle.py           PPO feedforward wrapped with oracle_env.py, trained
+                         on the UDR environment. --oracle_masses links|all.
+```
+
+All four training scripts save a checkpoint (`.zip`), the matching
+`vecnormalize.pkl` (needed to reproduce the exact input normalization at eval
+time), and a `_results.json` in `results/` with reward on source and target.
+
+### Probe pipeline (Block 2)
+
+```
+collect_data.py               Rolls out a trained policy (e.g. udr_lstm_s42)
+                              for N episodes. At every step, saves the LSTM
+                              hidden state together with the true link masses
+                              of that episode -> probe_dataset_*.npz. This is
+                              the training set for the probe.
+
+collect_control.py            Same rollout (same acting policy, same
+                              trajectories, same true masses), but the hidden
+                              state comes from a SEPARATE, randomly
+                              initialized, never-trained LSTM encoder.
+                              --encoder_seed only changes that encoder's
+                              init, not the trajectories. This produces the
+                              "reservoir" control dataset.
+
+probe_model.py                 Defines ProbeMLP: 2 hidden layers, 32 units,
+                              deliberately small. Rationale: if even this
+                              weak network can decode the masses, the
+                              information was already close to linearly
+                              present in the hidden state (Alain & Bengio,
+                              2016).
+
+train_probe.py                 Trains a ProbeMLP on one dataset (trained or
+                              control). Saves the weights to
+                              checkpoints/probes/*.pt and the MAE-vs-baseline
+                              metrics to results/*.json. The baseline it is
+                              compared against always predicts the
+                              training-set mean mass.
+
+analyze_probe_robustness.py     5-fold cross-validation, split by WHOLE
+                              episode (never by individual step, otherwise
+                              steps from the same episode leak between train
+                              and test). Also runs the early-time-window
+                              analysis: how decodability evolves over the
+                              first steps, restricted to the window where at
+                              least 90% of episodes are still alive.
+
+analyze_probe_controls.py       The sanity checks that make the whole probe
+                              result trustworthy: (1) a LINEAR probe, not
+                              just the MLP; (2) a probe that sees ONLY the
+                              timestep, no hidden state - should score ~0%,
+                              rules out the result being an artifact of
+                              episode length (survivorship bias); (3) a probe
+                              trained with SHUFFLED mass labels - should
+                              score ~0%, rules out data leakage.
+
+check_dataset_meta.py           Reads the metadata stored inside a .npz
+                              (which policy checkpoint generated it, which
+                              seed, which encoder) and verifies that a
+                              trained/control pair actually comes from the
+                              same underlying rollout. Called automatically
+                              inside run_probe_sweep.sh as a provenance
+                              guard - this is what caught the udr_s42
+                              seeding bug described in `results/legacy_udr_s42/`.
+```
+
+### Cross-mass evaluation (Block 1, extra check)
+
+```
+eval_cross_mass.py    Loads a trained checkpoint and evaluates it on
+                      environments where thigh/leg/foot are scaled by a
+                      fixed factor (default 0.70-1.30, torso left at its
+                      normal value). Tests whether recurrence helps on the
+                      parameter that was ACTUALLY randomized, as opposed to
+                      the torso mismatch between source and target.
+```
+
+### Aggregation
+
+```
+summarize_results.py     Reads every results/*_results.json and produces
+                         results/summary.md: mean +/- std across seeds,
+                         Block 1 policy comparison table.
+
+summarize_crossmass.py    Reads every results/crossmass_*.json and produces
+                         results/crossmass_summary.md, aggregated across the
+                         6 seeds.
+
+summarize_probe.py         Reads every results/probe_*.json and produces
+                         results/probe_summary.md, including the
+                         reward-vs-decodability correlation across the 3
+                         policy seeds.
+```
+
+### Figures
+
+```
+plot.py                   Generates every figure in images/ used in the
+                          paper: policy comparison, cross-mass, probe
+                          controls, probe time windows.
+
+plot_learning_curves.py    Generates images/learning_curves.png,
+                          feedforward vs recurrent training curves.
+```
+
+### Orchestration
+
+```
+run_probe_sweep.sh    Runs the whole Block 2 pipeline across the 3 policy
+                      seeds and, with WITH_CONTROLS=1, the 3 encoder seeds:
+                      collect -> train probe -> analyze -> check provenance
+                      -> aggregate. Can be run standalone.
+
+run_all.sh            Master script: Block 1 (all seeds, both algorithms,
+                      oracle), cross-mass eval, then calls
+                      run_probe_sweep.sh for Block 2. Reproduces every
+                      number in this README end to end.
 ```
 
 `models/`, `tensorboard/`, `logs/` and the `.npz` files are not in the repo
 because they are large; they can be regenerated with the commands below.
+
+## Trained models
+
+`checkpoints/` contains one representative checkpoint per key configuration
+(seed 42), together with the matching `vecnormalize.pkl`, for reproducibility.
+`checkpoints/probes/` contains the trained probe weights: one `.pt` per
+policy seed (`probe_mlp_s42.pt`, `_s123.pt`, `_s7.pt`) and one per reservoir
+control encoder seed (`probe_mlp_control_e7.pt`, `_e8.pt`, `_e999.pt`).
+Full multi-seed results (mean/std across 6 seeds) are in `results/`; the
+remaining checkpoints are not included to keep the repository size
+reasonable and can be regenerated with the commands above.
 
 ## Reproducing everything
 
@@ -126,14 +255,6 @@ python summarize_results.py --markdown results/summary.md
 python plot.py
 python plot_learning_curves.py
 ```
-
-## Trained models
-
-`checkpoints/` contains one representative checkpoint per key configuration
-(seed 42), together with the matching `vecnormalize.pkl`, for reproducibility.
-Full multi-seed results (mean/std across 6 seeds) are in `results/`; the
-remaining checkpoints are not included to keep the repository size
-reasonable and can be regenerated with the commands above.
 
 ## Block 1 results: the policies
 
@@ -297,14 +418,14 @@ labels it scores ~0% (no leakage).
   window where 90% of episodes are still alive.
 - **`vecnormalize.pkl` is only saved at the end of training**, so it matches
   the `_final` checkpoint, not `best_model`. We attempted to re-evaluate the
-  `best_model` checkpoints as a robustness check (`eval_best_checkpoints.py`),
-  but the results turned out to be unreliable precisely because of this
-  mismatch: some intermediate checkpoints, evaluated with non-matching
-  normalization statistics, collapse to near-zero reward despite not being
-  weak checkpoints. Fixing this would require a callback that saves the
-  statistics on every improvement, plus retraining every model from scratch,
-  which was not feasible given the time available; we flag it as future work.
-  Every number reported in this README comes from the `_final` checkpoints.
+  `best_model` checkpoints as a robustness check, but the results turned out
+  to be unreliable precisely because of this mismatch: some intermediate
+  checkpoints, evaluated with non-matching normalization statistics, collapse
+  to near-zero reward despite not being weak checkpoints. Fixing this would
+  require a callback that saves the statistics on every improvement, plus
+  retraining every model from scratch, which was not feasible given the time
+  available; we flag it as future work. Every number reported in this README
+  comes from the `_final` checkpoints.
 - The `udr5`/`udr25`/`udr50` variants (randomization amplitude) and the
   all-masses oracle are single-seed: indicative, not conclusive.
 - The random-LSTM control uses 3 initializations: enough given the very low
