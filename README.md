@@ -134,6 +134,14 @@ python plot.py
 python plot_learning_curves.py
 ```
 
+## Trained models
+
+`checkpoints/` contains one representative checkpoint per key configuration
+(seed 42), together with the matching `vecnormalize.pkl`, for reproducibility.
+Full multi-seed results (mean/std across 6 seeds) are in `results/`; the
+remaining checkpoints are not included to keep the repository size
+reasonable and can be regenerated with the commands above.
+
 ## Block 1 results: the policies
 
 Mean and standard deviation across 6 seeds (3 for the oracle), reward over 50
