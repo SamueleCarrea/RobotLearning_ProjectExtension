@@ -88,10 +88,22 @@ def plot_policy_comparison(summary):
         return
     rows = sorted(summary, key=lambda r: r["target_mean"])
 
+    # Distinguish the three single-seed randomization-amplitude bars
+    # (udr5/udr25/udr50, see Sec. V-B), which otherwise all fall back to the
+    # generic "UDR" label and are indistinguishable from one another.
+    AMPLITUDE_BY_ENV = {
+        "CustomHopper-source-udr5-v0": "5%",
+        "CustomHopper-source-udr25-v0": "25%",
+        "CustomHopper-source-udr50-v0": "50%",
+    }
+
     def short(r):
         m = (r["method"].split("(")[0].strip()
              .replace("Baseline no randomization", "No rand.")
              .replace("Uniform Domain Randomization", "UDR"))
+        amp = AMPLITUDE_BY_ENV.get(r["env"])
+        if amp is not None:
+            m = f"UDR {amp}"
         alg = "LSTM" if "lstm=128" in r["config"] else "FF"
         env = "src" if "source" in r["env"] else "tgt"
         return f"{m}\n{alg}, {env}\n(n={r['n_runs']})"
