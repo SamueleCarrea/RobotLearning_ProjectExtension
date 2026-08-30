@@ -173,27 +173,31 @@ as a rare event rather than a reliable property of the method.
 Idea: if the problem were only that the torso is never randomized, then on
 environments where the actually-randomized parameters (thigh, leg, foot) vary,
 memory should help. Result, scaling all three masses together (0.70-1.30, the
-standard UDR range is 0.85-1.15), averaged over 6 seeds:
+standard UDR range is 0.85-1.15), mean ± std over 6 seeds
+(`summarize_crossmass.py`):
 
 | scale | PPO feedforward | RecurrentPPO |
 |---:|---:|---:|
-| 0.70 | 1403.0 | 1096.4 |
-| 0.85 | 1700.1 | 1133.5 |
-| 1.00 | 1716.5 | 1155.1 |
-| 1.15 | 1505.5 | 1137.2 |
-| 1.30 | 1282.5 | 1062.2 |
+| 0.70 | 1403 ± 549 | 1086 ± 341 |
+| 0.85 | 1700 ± 153 | 1112 ± 299 |
+| 1.00 | 1716 ± 71  | 1096 ± 309 |
+| 1.15 | 1506 ± 188 | 1075 ± 328 |
+| 1.30 | 1283 ± 398 | 1032 ± 247 |
 
 Feedforward wins **here too**, everywhere, and even more clearly outside the
 training range. Recurrence does not help even when the varying parameter is
 exactly the inferable one: the issue is not just the torso mismatch, it is
 that at these perturbation amplitudes (±15%) a single robust gait already
-covers the whole range, so specializing does not pay off.
+covers the whole range, so specializing does not pay off. Note the standard
+deviation on RecurrentPPO (up to ±341) is itself large relative to the gap
+between scales, which is the same seed-to-seed instability documented for the
+probe below, not a separate issue.
 
-Scaling one link at a time (seed 42) shows which mass actually matters: on
-feedforward, `thigh` and `leg` are flat (~1720-1745 across the whole range),
-only `foot` degrades monotonically (1827 -> 1644). This is the same ranking
-that emerges from the probe (see below): the foot is the only mass that
-matters for control.
+Scaling one link at a time (seed 42 only, indicative) shows which mass
+actually matters: on feedforward, `thigh` and `leg` are flat (~1714-1745
+across the whole range), only `foot` degrades monotonically
+(1827 -> 1644). This is the same ranking that emerges from the probe (see
+below): the foot is the only mass that matters for control.
 
 ## Block 2 results: the probe
 
@@ -240,9 +244,9 @@ independently:
 
 | mass | Pearson r (reward vs. decodability, n=3) | p |
 |---|---:|---:|
-| thigh | −0.982 | 0.120 |
-| leg   | −0.832 | 0.374 |
-| foot  | −0.984 | 0.112 |
+| thigh | −0.982 | 0.121 |
+| leg   | −0.824 | 0.383 |
+| foot  | −0.984 | 0.113 |
 
 With n=3 no single p-value is significant, and we are not claiming one is:
 the evidence is that the sign is negative and consistent across three
