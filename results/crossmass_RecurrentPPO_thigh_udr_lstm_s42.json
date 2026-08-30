@@ -1,5 +1,5 @@
 {
-    "checkpoint": "models/udr_s42/udr_RecurrentPPO_final",
+    "checkpoint": "models/udr_lstm_s42/udr_RecurrentPPO_final",
     "algorithm": "RecurrentPPO",
     "env_id": "CustomHopper-source-v0",
     "which": "thigh",
