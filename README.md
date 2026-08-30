@@ -148,8 +148,8 @@ evaluation episodes:
 | No-randomization baseline (source), RecurrentPPO | 1325.3 ± 171.3 | 1169.0 ± 358.0 |
 | UDR, PPO feedforward | 1706.2 ± 72.6 | 891.3 ± 349.1 |
 | UDR, RecurrentPPO | 1119.8 ± 265.2 | 745.4 ± 341.9 |
-| Oracle (true thigh/leg/foot), RecurrentPPO | 1430.5 ± 256.4 | 1149.9 ± 290.4 |
-| Oracle (all masses, torso included), 1 seed | 895.2 | 1185.2 |
+| Oracle (true thigh/leg/foot), PPO feedforward | 1430.5 ± 256.4 | 1149.9 ± 290.4 |
+| Oracle (all masses, torso included), PPO feedforward, 1 seed | 895.2 | 1185.2 |
 
 Three things emerge, all pointing the same way:
 
