@@ -8,3 +8,7 @@ env/__pycache__/
 .DS_Store
 *.zip
 !checkpoints/*.zip
+eval_best_checkpoints.py
+quarantine_legacy.sh
+test_random_policy.py
+watch_episode.py
