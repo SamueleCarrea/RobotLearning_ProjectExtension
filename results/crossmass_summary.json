@@ -1,0 +1,236 @@
+{
+    "all": {
+        "PPO": {
+            "n_runs": 6,
+            "files": [
+                "crossmass_PPO_all_udr_ff_s11.json",
+                "crossmass_PPO_all_udr_ff_s123.json",
+                "crossmass_PPO_all_udr_ff_s21.json",
+                "crossmass_PPO_all_udr_ff_s42.json",
+                "crossmass_PPO_all_udr_ff_s5.json",
+                "crossmass_PPO_all_udr_ff_s7.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1403.0363792583332,
+                1700.083496441667,
+                1716.4637968333334,
+                1505.522206933333,
+                1282.5020995666666
+            ],
+            "std": [
+                548.7626597173877,
+                152.5635796650011,
+                70.69125307224625,
+                188.0487766260799,
+                398.4883194885551
+            ]
+        },
+        "RecurrentPPO": {
+            "n_runs": 6,
+            "files": [
+                "crossmass_RecurrentPPO_all_udr_lstm_s11.json",
+                "crossmass_RecurrentPPO_all_udr_lstm_s123.json",
+                "crossmass_RecurrentPPO_all_udr_lstm_s21.json",
+                "crossmass_RecurrentPPO_all_udr_lstm_s42.json",
+                "crossmass_RecurrentPPO_all_udr_lstm_s5.json",
+                "crossmass_RecurrentPPO_all_udr_lstm_s7.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1085.8635047833334,
+                1111.7790291666668,
+                1096.27533645,
+                1075.2002282083333,
+                1031.8503097833334
+            ],
+            "std": [
+                341.3611884345011,
+                298.6700686446686,
+                308.76322874945447,
+                327.54237768522427,
+                246.53607777669146
+            ]
+        }
+    },
+    "foot": {
+        "PPO": {
+            "n_runs": 1,
+            "files": [
+                "crossmass_PPO_foot_udr_ff_s42.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1826.6751890999997,
+                1779.8702376999997,
+                1728.6946878500003,
+                1685.75245225,
+                1644.3194636
+            ],
+            "std": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "RecurrentPPO": {
+            "n_runs": 1,
+            "files": [
+                "crossmass_RecurrentPPO_foot_udr_lstm_s42.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1050.2269466500002,
+                1473.9124819,
+                1508.007518,
+                1434.6708124499999,
+                1366.74209325
+            ],
+            "std": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "leg": {
+        "PPO": {
+            "n_runs": 1,
+            "files": [
+                "crossmass_PPO_leg_udr_ff_s42.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1743.19736505,
+                1724.1852942,
+                1728.6946878500003,
+                1742.7687495999999,
+                1716.2722643500001
+            ],
+            "std": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "RecurrentPPO": {
+            "n_runs": 1,
+            "files": [
+                "crossmass_RecurrentPPO_leg_udr_lstm_s42.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1365.4503883499997,
+                1459.5828577500001,
+                1508.007518,
+                1572.8027079500002,
+                1332.1030741
+            ],
+            "std": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    },
+    "thigh": {
+        "PPO": {
+            "n_runs": 1,
+            "files": [
+                "crossmass_PPO_thigh_udr_ff_s42.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1744.6078979000001,
+                1713.548589,
+                1728.6946878500003,
+                1741.2985085999996,
+                1727.1522412499999
+            ],
+            "std": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "RecurrentPPO": {
+            "n_runs": 1,
+            "files": [
+                "crossmass_RecurrentPPO_thigh_udr_lstm_s42.json"
+            ],
+            "scales": [
+                0.7,
+                0.85,
+                1.0,
+                1.15,
+                1.3
+            ],
+            "mean": [
+                1015.44321135,
+                1374.3374675999999,
+                1508.007518,
+                1388.4753716,
+                1376.5283849500001
+            ],
+            "std": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        }
+    }
+}

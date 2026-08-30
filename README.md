@@ -51,8 +51,13 @@ analyze_probe_robustness.py   cross-validation + early window (no leakage)
 analyze_probe_controls.py     linear probe + controls (timestep-only, shuffled labels)
 eval_cross_mass.py            evaluates a checkpoint on environments with thigh/leg/foot scaled
 eval_best_checkpoints.py      re-evaluates best_model checkpoints (see Limitations: not recommended)
+check_dataset_meta.py         prints .npz provenance, verifies control/trained pairing
+run_probe_sweep.sh            probe pipeline across policy seeds + encoder seeds
+summarize_probe.py            aggregates probe results, reward-vs-decodability correlation
+summarize_crossmass.py        aggregates cross-mass evaluations across seeds
+quarantine_legacy.sh          moves aside results from the pre-seeding-fix run
 summarize_results.py          table with mean and std across seeds
-plot.py                       block 2 plots (probe)
+plot.py                       all paper figures (policies, cross-mass, probe)
 plot_learning_curves.py       learning curves, feedforward vs recurrent
 watch_episode.py              renders one episode
 test_random_policy.py         sanity check on the environment with a random policy
@@ -96,26 +101,14 @@ for s in 42 123 7; do
 done
 python train_oracle.py --seed 42 --n_envs 8 --oracle_masses all --tag all_s42
 
-# probe: dataset from the UDR checkpoint (seed 42, part of the 6-seed group)
-python collect_data.py --checkpoint models/udr_lstm_s42/udr_RecurrentPPO_final.zip \
-    --episodes 450 --use_cell_state --out probe_dataset_450.npz
-python train_probe.py --dataset probe_dataset_450.npz --epochs 150 \
-    --out_json results/probe_results.json
-python analyze_probe_robustness.py --dataset probe_dataset_450.npz --folds 5 \
-    --out results/probe_robustness_results.json
-python analyze_probe_controls.py --dataset probe_dataset_450.npz \
-    --out results/probe_controls_results.json
+# probe: multi-seed sweep (trained policies + reservoir controls), see
+# run_probe_sweep.sh for what each step does and why encoder seeds are kept
+# separate from policy seeds
+WITH_CONTROLS=1 bash run_probe_sweep.sh
 
-# control: same trajectories, randomly-initialized LSTM encoder (3 initializations)
-for e in 999 7 8; do
-  python collect_control.py --mode random_lstm \
-      --checkpoint models/udr_lstm_s42/udr_RecurrentPPO_final --use_cell_state \
-      --episodes 450 --seed 0 --encoder_seed $e --out probe_dataset_control_e$e.npz
-  python train_probe.py --dataset probe_dataset_control_e$e.npz --epochs 150 \
-      --out_json results/probe_results_control_e$e.json
-  python analyze_probe_robustness.py --dataset probe_dataset_control_e$e.npz \
-      --out results/probe_robustness_control_e$e.json
-done
+# aggregation across seeds, including the reward-vs-decodability check
+python summarize_probe.py --markdown results/probe_summary.md
+python summarize_crossmass.py --markdown results/crossmass_summary.md
 
 # cross-mass: evaluate checkpoints on environments where thigh/leg/foot vary
 # (the parameter UDR actually randomizes), instead of the torso
@@ -205,58 +198,93 @@ matters for control.
 ## Block 2 results: the probe
 
 The probe is compared against a baseline that always predicts the mean mass.
-5-fold cross-validation, split by episode:
+5-fold cross-validation, split by episode, one dataset per UDR RecurrentPPO
+policy seed:
 
-| mass | MAE reduction (trained probe) |
-|---|---:|
-| thigh | 9.1% ± 2.1 |
-| leg | 1.6% ± 0.7 |
-| foot | 9.9% ± 1.7 |
+| policy seed | reward (source→target) | thigh | leg | foot |
+|---|---:|---:|---:|---:|
+| s42  | 1211 (best-converged) | 9.1  | 1.6 | 9.8  |
+| s123 | 821                   | 16.6 | 6.2 | 20.8 |
+| s7   | 395 (least-converged) | 33.2 | 6.0 | 43.9 |
 
-These numbers are lower than an earlier analysis suggested (that one had a
-leakage bug, since fixed). Before interpreting them, though, we need to know
-how much of this decodability actually comes from training, and how much is
-simply an effect of recurrence itself.
+MAE reduction (%) over the mean-predictor baseline. We do not collapse this
+into mean ± std: with only 3 seeds that would hide the pattern below, which is
+the actual finding.
 
 ### The decisive control: a randomly-initialized LSTM
 
 A recurrent network with never-trained weights is still a non-linear
 projection of the history of observations (the "reservoir" effect), and a lot
 can be decoded from it without anyone having learned anything. We collected
-the same dataset (same trajectories, same targets) replacing the trained
-encoder with three independent randomly-initialized encoders:
+the same trajectories with the acting policy fixed to `udr_lstm_s42` and the
+encoder replaced by three independent randomly-initialized encoders:
 
-| mass | trained LSTM | randomly-initialized LSTM (3 initializations) |
+| mass | trained LSTM (3 policy seeds) | random LSTM (3 encoder seeds) |
 |---|---:|---:|
-| thigh | 9.1 ± 2.1 | 17.0-18.1 |
-| leg | 1.6 ± 0.7 | 4.4-4.9 |
-| foot | 9.9 ± 1.7 | 18.8-19.8 |
+| thigh | 19.6 ± 12.3 | 17.8 ± 0.5 |
+| leg   | 4.6 ± 2.6   | 5.0 ± 0.2  |
+| foot  | 24.9 ± 17.4 | 19.9 ± 0.8 |
 
-**The random network beats the trained one on all three masses.** The three
-encoders are consistent with each other (spread of about one percentage
-point), so this is not a lucky initialization. This is consistent with the
-oracle result: if information about the parameters does not serve the
-control task, training has no incentive to preserve it, and in fact
-compresses it away.
+At face value the trained mean is not below the random one anymore, unlike
+what a single seed (s42) suggested. But look at the spread: **the random
+encoders agree with each other to within one percentage point, the trained
+seeds disagree by up to 24 points.** Whatever is happening on the trained side
+is not "training suppresses information" as a fixed effect. It is seed-dependent, and dramatically so.
+
+### What the variance actually is
+
+The three policy seeds differ enormously in how well they solved the task
+(reward source→target: 1211 / 821 / 395). Decodability tracks that ordering
+almost exactly, and the direction is the same on all three masses
+independently:
+
+| mass | Pearson r (reward vs. decodability, n=3) | p |
+|---|---:|---:|
+| thigh | −0.982 | 0.120 |
+| leg   | −0.832 | 0.374 |
+| foot  | −0.984 | 0.112 |
+
+With n=3 no single p-value is significant, and we are not claiming one is:
+the evidence is that the sign is negative and consistent across three
+independently-fit masses, not the p-value of any one of them. The reading we
+consider best supported: **the better a policy converges, the more it
+compresses away mass information that is not useful for the task.** The seed
+that converged best (s42, reward 1211) is the only one that goes clearly
+below the reservoir baseline on every mass. The seed that barely converged
+(s7, reward 395) still resembles an under-trained network that has not yet
+compressed its state toward what the task needs, so it decodes even better
+than a random one.
+
+This refines rather than overturns the original message: it is not that
+training in general destroys decodable information, it is that **convergence**
+does, and with a single seed there was no way to tell the two apart. It is
+also consistent with the oracle result from another angle: if the randomized
+parameters mattered for control, better-converged policies would have no
+reason to compress them away.
 
 Even the phenomenology that initially looked like the headline result (t=0 at
 baseline level, the early peak on foot before thigh, the decay afterwards) is
-reproduced identically by the random encoder: it is an effect of recurrence,
-not of learning.
+reproduced by the random encoder as well as by the trained ones: it is an
+effect of recurrence, not of learning (see `probe_windows_trained_vs_random.png`).
 
-**Block 2 conclusion**: training does not produce implicit identification in
-the sense we were looking for. On the contrary, it suppresses information
-that the recurrent structure alone would already make available, because that
-information (thigh, leg, foot) is not useful for the task. This is the same
-message as Block 1, seen from another angle: what gets randomized is not what
-matters for transfer, and the model "knows" it.
+**Block 2 conclusion**: training does not produce a reliable, seed-independent
+implicit identification signal. What we find instead is that decodability is
+tied to how well the policy converges, in the direction predicted by the rest
+of the project: convergence on this task does not require, and actively
+discards, information about the randomized masses.
 
-The basic controls remain valid, and hold on the control dataset just as they
-do on the real one: at t=0 the probe is at baseline level (no dynamical
-information yet), a probe using only the timestep scores ~0% (so it is not
-survivorship bias), and with shuffled labels it scores ~0% (no leakage).
+The basic controls remain valid on every dataset checked: at t=0 the probe is
+at baseline level (no dynamical information yet), a probe using only the
+timestep scores ~0% (so it is not survivorship bias), and with shuffled
+labels it scores ~0% (no leakage).
 
 ## Limitations
+
+- The reward-decodability correlation is qualitative evidence (consistent
+  sign across 3 independently-fit masses), not a statistically significant
+  result (n=3, p>0.1 on every mass taken alone). More UDR RecurrentPPO seeds
+  would be needed to test it properly; we did not have the compute budget for
+  that within the project deadline.
 
 - `max_episode_steps` is 500, not 1000, so rewards are not directly comparable
   to standard Hopper benchmarks.

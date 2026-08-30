@@ -114,7 +114,12 @@ def main():
 
     kw = dict(hidden_dim=args.hidden_dim, epochs=args.epochs, lr=args.lr,
               batch_size=args.batch_size, device=device)
-    out = {}
+    # provenance: without this the output JSON cannot be traced back to the
+    # policy it came from, which is exactly the ambiguity we hit once already
+    out = {
+        "dataset": args.dataset,
+        "provenance": {k[5:]: str(d[k]) for k in d.files if k.startswith("meta_")},
+    }
 
     # probe vero
     pred = fit_probe(X[is_tr], y_tr, X[is_te], **kw)

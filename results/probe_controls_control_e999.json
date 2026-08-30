@@ -1,0 +1,73 @@
+{
+    "dataset": "probe_dataset_control_e999.npz",
+    "provenance": {
+        "checkpoint": "CONTROL[random_lstm] actor=models/udr_lstm_s42/udr_RecurrentPPO_final",
+        "vecnormalize": "models/udr_lstm_s42/vecnormalize.pkl",
+        "env_id": "CustomHopper-source-udr-v0",
+        "lstm_hidden_size": "128",
+        "use_cell_state": "True",
+        "deterministic": "True",
+        "seed": "0",
+        "encoder_seed": "999",
+        "stride": "5",
+        "control_mode": "random_lstm"
+    },
+    "hidden_state": {
+        "thigh": 15.317815780639648,
+        "leg": 5.087405204772949,
+        "foot": 17.229032516479492
+    },
+    "linear_ridge_probe": {
+        "thigh": 5.1182451248168945,
+        "leg": 1.8523752689361572,
+        "foot": 5.137997627258301
+    },
+    "control_timestep_only": {
+        "thigh": -0.0841975212097168,
+        "leg": -0.06520748138427734,
+        "foot": -0.05066394805908203
+    },
+    "control_shuffled_labels": {
+        "thigh": -0.38352012634277344,
+        "leg": -0.5033254623413086,
+        "foot": 0.09307265281677246
+    },
+    "by_window": {
+        "0-0": {
+            "n": 90,
+            "thigh": -2.398836612701416,
+            "leg": 1.4049708843231201,
+            "foot": 0.7335305213928223
+        },
+        "1-20": {
+            "n": 360,
+            "thigh": 6.297212600708008,
+            "leg": 4.395020008087158,
+            "foot": 29.54239273071289
+        },
+        "20-50": {
+            "n": 630,
+            "thigh": 28.172588348388672,
+            "leg": 12.934046745300293,
+            "foot": 52.674705505371094
+        },
+        "50-100": {
+            "n": 990,
+            "thigh": 20.430553436279297,
+            "leg": 13.45156478881836,
+            "foot": 30.630897521972656
+        },
+        "100-200": {
+            "n": 1888,
+            "thigh": 19.695276260375977,
+            "leg": 6.955969333648682,
+            "foot": 20.250057220458984
+        },
+        "200-500": {
+            "n": 4567,
+            "thigh": 12.560248374938965,
+            "leg": 1.9107699394226074,
+            "foot": 9.075593948364258
+        }
+    }
+}

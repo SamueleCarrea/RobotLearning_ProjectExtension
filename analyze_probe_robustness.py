@@ -192,6 +192,8 @@ def main():
 
     out = {
         "dataset": args.dataset,
+        "provenance": {k[5:]: str(data[k]) for k in data.files
+                       if k.startswith("meta_")},
         "cross_validation": {
             name: {
                 "improv_pct_mean": float(improvs[:, i].mean()),

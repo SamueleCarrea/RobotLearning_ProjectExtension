@@ -1,5 +1,5 @@
 {
-    "dataset": "probe_dataset_450.npz",
+    "dataset": "probe_dataset_s42.npz",
     "per_mass": {
         "thigh": {
             "baseline_mae": 0.29630225896835327,
